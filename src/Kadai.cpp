@@ -1,17 +1,24 @@
-ï»¿/*
- *ã€€Program name: Game Platform
- *ã€€Author: Hirai
- *ã€€Date: 2018.06.06
- *ã€€Overview: ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã§éŠã¹ã‚‹è¤‡æ•°ã®ç°¡å˜ãªã‚²ãƒ¼ãƒ ã‚’æä¾›ã™ã‚‹ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ 
- */
+/*
+*@Program name: Game Platform
+*@Author: Hirai
+*@Date: 2018.06.06
+*@Overview: ƒRƒ“ƒ\[ƒ‹‚Å—V‚×‚é•¡”‚ÌŠÈ’P‚ÈƒQ[ƒ€‚ğ’ñ‹Ÿ‚·‚éƒvƒ‰ƒbƒgƒtƒH[ƒ€
+*/
 #include<stdio.h>
 #include<time.h>
 #include<stdlib.h>
 #include<windows.h>
+#include <conio.h>
 
 void omikuji(void);
-void janken(void);
+void jankenController();
+int janken(void);
 int jankenHantei(int myHand, int opponentHand);
+void printHand(int myHand, int opponentHand);
+void printGoo();
+void printChoki();
+void printPaa();
+
 
 int main(void)
 {
@@ -24,10 +31,11 @@ int main(void)
 	printf("*                        *\n");
 	printf("**************************\n");
 
-	printf("\nã‚²ãƒ¼ãƒ ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã¸ã‚ˆã†ã“ãï¼ï¼\n");
-	printf("ã‚ãªãŸã¯ã©ã®ã‚²ãƒ¼ãƒ ã§éŠã³ã¾ã™ã‹ï¼Ÿ\n");
+	printf("\n");
+	printf("ƒQ[ƒ€ƒvƒ‰ƒbƒgƒtƒH[ƒ€‚Ö‚æ‚¤‚±‚»II\n");
 	while (isContinue) {
-		printf("Aï¼šãŠã¿ãã˜ã€Bï¼šã˜ã‚ƒã‚“ã‘ã‚“ [A/B] > ");
+		printf("‚ ‚È‚½‚Í‚Ç‚ÌƒQ[ƒ€‚Å—V‚Ñ‚Ü‚·‚©H\n");
+		printf("AF‚¨‚İ‚­‚¶ABF‚¶‚á‚ñ‚¯‚ñ [A/B] > ");
 		scanf("%c", &choice);
 		rewind(stdin);
 
@@ -38,21 +46,23 @@ int main(void)
 			omikuji();
 			break;
 		case 'B':
-			janken();
+			jankenController();
 			break;
 		default:
-			printf("Aã‚‚ã—ãã¯Bã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚\n");
+			printf("A‚à‚µ‚­‚ÍB‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B");
 			break;
 		}
-		printf("\nå†åº¦éŠã¶ã‚²ãƒ¼ãƒ ã‚’é¸æŠã™ã‚‹å ´åˆã¯Yã‚’ã€\nã‚²ãƒ¼ãƒ ã‚’çµ‚äº†ã™ã‚‹å ´åˆã¯Nã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚[Y/N] > ");
+		printf("\n");
+		printf("Ä“x—V‚ÔƒQ[ƒ€‚ğ‘I‘ğ‚·‚éê‡‚ÍY‚ğA\nƒQ[ƒ€‚ğI—¹‚·‚éê‡‚ÍN‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B[Y/N] > ");
 		scanf("%c", &choice);
 		rewind(stdin);
-		
+
 		if (choice != 'Y') {
 			isContinue = false;
 		}
+		printf("\n");
 	}
-	printf("\néŠã‚“ã§ãã‚Œã¦ã‚ã‚ŠãŒã¨ã†ã€‚\nçµ‚äº†ã™ã‚‹ã«ã¯Enterã‚­ãƒ¼ã‚’æŠ¼ã—ã¦ãã ã•ã„...");
+	printf("—V‚ñ‚Å‚­‚ê‚Ä‚ ‚è‚ª‚Æ‚¤B\nI—¹‚·‚é‚É‚ÍEnterƒL[‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢...");
 	rewind(stdin);
 	getchar();
 	return 0;
@@ -61,84 +71,166 @@ int main(void)
 void omikuji()
 {
 	int fortuneKey;
-	char dispStr[27] = "ã‚ãªãŸã®é‹å‹¢ã¯ã€";
-	char dispStr_suffix[8] = "ã§ã™ã€‚";
-	char fortune[7][5] = { "å¤§å‰", "ä¸­å‰", "å°å‰", "å‰", "æœ«å‰", "å‡¶", "å¤§å‡¶"};
+	char fortune[7][5] = { "‘å‹g", "’†‹g", "¬‹g", "‹g", "––‹g", "‹¥", "‘å‹¥" };
+
+	printf("‚¨‚İ‚­‚¶‚ğU‚è‚Ü‚·‚Ì‚ÅA‚±‚±‚¾‚Æv‚¤‚Æ‚«‚ÉEnter‚ğ‰Ÿ‚µ‚Ä~‚ß‚Ä‚­‚¾‚³‚¢B\n");
+	Sleep(500);
+	printf("‚¢‚«‚Ü`‚·I\n");
+	Sleep(500);
+	while (1) {
+		if (_kbhit()) {
+			if (getch() == '\r')
+				break;
+		}
+		printf("ƒWƒƒƒJ  ");
+		Sleep(500);
 	
-	printf("ãŠã¿ãã˜ã‚’å¼•ãã¾ã™ã€‚\n");
-	//ä¹±æ•°ã«ã‚ˆã‚‹ãŠã¿ãã˜é…åˆ—(fortune)ã®ç¬¬1å¼•æ•°ã‚’ç”Ÿæˆ
+	}
+	printf("\n");
+	printf("ƒ|ƒ“II\n\n");
+
+	//—”‚É‚æ‚é‚¨‚İ‚­‚¶”z—ñ(fortune)‚Ì‘æ1ˆø”‚ğ¶¬
 	srand((unsigned)time(NULL));
 	fortuneKey = rand() % 7 + 1;
 
-	//æ–‡å­—åˆ—ã®åˆæˆ
-	strcat(dispStr, fortune[fortuneKey - 1]);
-	strcat(dispStr, dispStr_suffix);
+	printf("‚ ‚È‚½‚Ì‰^¨‚Í");
+	Sleep(500);
+	printf("A");
+	Sleep(500);
+	printf("A");
+	Sleep(500);
+	printf("A");
 
-	printf("%s", dispStr);
+	printf("%s!!!", fortune[fortuneKey - 1]);
+	Sleep(1000);
+	printf("‚Å‚·B\n");
 	printf("\n");
+	//ƒQ[ƒ€I—¹‚ÌƒCƒ“ƒ^[ƒoƒ‹
+	Sleep(500);
 }
 
-void janken()
+void jankenController()
 {
-	char dispIMsg[25] = "ç§ã¯";
-	char dispPutMsg[15] = "ã‚’å‡ºã—ã¾ã—ãŸã€‚";
-	char handStr[3][7] = { "ã‚°ãƒ¼", "ãƒãƒ§ã‚­", "ãƒ‘ãƒ¼" };
-	int myHand;
-	printf("ã˜ã‚ƒã‚“ã‘ã‚“ã‚²ãƒ¼ãƒ ã®å§‹ã¾ã‚Šã§ã™ã€‚\n");
+	char dispIMsg[25] = "„‚Í";
+	char dispPutMsg[15] = "‚ğo‚µ‚Ü‚µ‚½B";
+	char choice;
+	int winCount = 0;
+	int result = 0;
 
-	//è‡ªåˆ†ã®æ‰‹ã®é¸æŠ
-	printf("ã‚ãªãŸãŒå‡ºã™æ‰‹ã‚’é¸ã‚“ã§ãã ã•ã„ã€‚\n");
-	printf("1:ã‚°ãƒ¼ã€2:ãƒãƒ§ã‚­ã€3:ãƒ‘ãƒ¼ [1/2/3] > ");
+	printf("‚¶‚á‚ñ‚¯‚ñƒQ[ƒ€‚Ìn‚Ü‚è‚Å‚·B\n");
+	printf("Ÿ”‚É‰‚¶‚ÄAÌ†‚ªö—^‚³‚ê‚Ü‚·B\n");
+	printf("–Úw‚¹10ŸII\n");
+	printf("\n");
+	Sleep(500);
+
+	//‚â‚ß‚é‚ğ‘I‘ğ‚·‚é‚Ü‚ÅŸ•‰‚ğŒJ‚è•Ô‚·
+	bool isContinue = true;
+	while (isContinue) {
+		result = janken();
+		winCount = winCount + result;
+		printf("Ä“x‘Îí‚·‚éê‡‚ÍY‚ğA‘Îí‚ğ‚â‚ß‚éê‡‚ÍN‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B[Y/N] > ");
+		scanf("%c", &choice);
+		rewind(stdin);
+
+		if (choice != 'Y') {
+			isContinue = false;
+		}
+		printf("\n");
+	}
+	printf("\n");
+	//Ÿ”‚É‰‚¶‚ÄÌ†‚ğö—^
+	printf("‚¨”æ‚ê—l‚Å‚·BÌ†ö—^‚ğs‚¢‚Ü‚·B\n");
+	Sleep(1000);
+	if (winCount < 3) {
+		printf("‚ ‚È‚½‚Ì‚¶‚á‚ñ‚¯‚ñ‚Ì˜r‚Í‰‹‰‚Å‚·B\n");
+	}
+	else if (3 <= winCount && winCount < 7) {
+		printf("‚ ‚È‚½‚Ì‚¶‚á‚ñ‚¯‚ñ‚Ì˜r‚Í’†‹‰‚Å‚·B\n");
+	}
+	else if (7 <= winCount && winCount < 10) {
+		printf("‚ ‚È‚½‚Ì‚¶‚á‚ñ‚¯‚ñ‚Ì˜r‚Íã‹‰‚Å‚·B\n");
+	}
+	else if (10 <= winCount) {
+		printf("‚ ‚È‚½‚Ì‚¶‚á‚ñ‚¯‚ñ‚Ì˜r‚Í–Æ‹–ŠF“`‚Å‚·B\n");
+	}
+	//ƒQ[ƒ€I—¹‚ÌƒCƒ“ƒ^[ƒoƒ‹
+	Sleep(500);
+}
+
+int janken()
+{
+	char handStr[3][7] = { "ƒO[", "ƒ`ƒ‡ƒL", "ƒp[" };
+	int myHand;
+	int kachiboshi = 0;
+
+	//©•ª‚Ìè‚Ì‘I‘ğ
+	printf("‚ ‚È‚½‚ªo‚·è‚ğ‘I‚ñ‚Å‚­‚¾‚³‚¢B\n");
+	printf("1:ƒO[A2:ƒ`ƒ‡ƒLA3:ƒp[ [1/2/3] > ");
 	scanf("%d", &myHand);
 	rewind(stdin);
 
-	printf("\nã˜ã‚ƒã‚“ã‘ã‚“ã‚’å§‹ã‚ã¾ã™ã€‚\n");
-	Sleep(2000);
-	printf("æœ€åˆã¯ã‚°ãƒ¼...\n");
+	printf("\n‚¶‚á‚ñ‚¯‚ñ‚ğn‚ß‚Ü‚·B\n");
 	Sleep(1000);
-	printf("ã˜ã‚ƒã‚“ã‘ã‚“ã€ãƒãƒ³\n");
+	printf("Å‰‚ÍƒO[");
+	Sleep(500);
+	printf(".");
+	Sleep(500);
+	printf(".");
+	Sleep(500);
+	printf(".");
+	printf("\n");
 
-	//å‹è² ãŒã¤ãã¾ã§ã€ã˜ã‚ƒã‚“ã‘ã‚“ã‚’ç¹°ã‚Šè¿”ã™
+	Sleep(500);
+	printf("‚¶‚á‚ñ‚¯‚ñA");
+	Sleep(500);
+	printf("ƒ|ƒ“III\n");
+
+
+	//Ÿ•‰‚ª‚Â‚­‚Ü‚ÅA‚¶‚á‚ñ‚¯‚ñ‚ğŒJ‚è•Ô‚·
 	bool isDraw = true;
 	while (isDraw) {
 		int result;
+		char dispIMsg[25] = "„‚Í";
+		char dispPutMsg[15] = "‚ğo‚µ‚Ü‚µ‚½B";
 
-		//ç›¸æ‰‹ã®æ‰‹ã®é¸æŠ
-		//ç›¸æ‰‹ã®æ‰‹ã¯ä»¥ä¸‹ã®æ•°å€¤ã‚’ãã‚Œãã‚Œã®æ‰‹ã«æŒ¯ã‚Šæ›¿ãˆã‚‹
-		//1:ã‚°ãƒ¼ã€2:ãƒãƒ§ã‚­ã€3:ãƒ‘ãƒ¼
+		//‘Šè‚Ìè‚Ì‘I‘ğ
+		//‘Šè‚Ìè‚ÍˆÈ‰º‚Ì”’l‚ğ‚»‚ê‚¼‚ê‚Ìè‚ÉU‚è‘Ö‚¦‚é
+		//1:ƒO[A2:ƒ`ƒ‡ƒLA3:ƒp[
 		int opponentHand;
 		srand((unsigned)time(NULL));
 		opponentHand = rand() % 3 + 1;
-		Sleep(2000);
+		Sleep(250);
+		printHand(myHand, opponentHand);
 
-		//ç›¸æ‰‹ã®ã‚»ãƒªãƒ•ã®åˆæˆ
+		//‘Šè‚ÌƒZƒŠƒt‚Ì‡¬
 		strcat(dispIMsg, handStr[opponentHand - 1]);
 		strcat(dispIMsg, dispPutMsg);
 		printf("\n%s\n", dispIMsg);
 
-		//å‹æ•—ã®åˆ¤å®š
+		//Ÿ”s‚Ì”»’è
 		result = jankenHantei(myHand, opponentHand);
-		printf("ã˜ã‚ƒã‚“ã‘ã‚“ã®çµæœã¯...");
+		printf("‚¶‚á‚ñ‚¯‚ñ‚ÌŒ‹‰Ê‚Í...");
 		switch (result)
 		{
-		case 0:	//å¼•ãåˆ†ã‘
+		case 0:	//ˆø‚«•ª‚¯
 			Sleep(1000);
-			printf("Î£(ï¾ŸĞ”ï¾Ÿ;)\n");
+			printf("ƒ°(ß„Dß;)\n");
 			Sleep(1000);
-			printf("ã‚ã„ã“ã§ã™ã€‚\n");
+			printf("‚ ‚¢‚±‚Å‚·B\n");
 			break;
-		case 1:	//å‹ã¡
+		case 1:	//Ÿ‚¿
 			Sleep(1000);
-			printf("ï¼ˆã€€ï¼´Ğ”ï¼´ï¼‰\n");
+			printf("i@‚s„D‚sj\n");
 			Sleep(1000);
-			printf("è² ã‘ã¾ã—ãŸã€‚ã‚ãªãŸã®å‹ã¡ã§ã™ã€‚\n");
+			printf("•‰‚¯‚Ü‚µ‚½B‚ ‚È‚½‚ÌŸ‚¿‚Å‚·B\n");
+			kachiboshi = 1;
 			isDraw = false;
 			break;
-		case 2:	//è² ã‘
+		case 2:	//•‰‚¯
 			Sleep(1000);
-			printf("ãƒ¾( ï¾Ÿâˆ€ï¾Ÿ)ï¾‰ï¾\n");
+			printf("S( ßÍß)ÉŞ\n");
 			Sleep(1000);
-			printf("æ®‹å¿µã€‚ç§ã®å‹ã¡ã§ã™ã€‚\n");
+			printf("c”OB„‚ÌŸ‚¿‚Å‚·B\n");
 			isDraw = false;
 			break;
 		default:
@@ -146,41 +238,56 @@ void janken()
 		}
 		printf("\n");
 
-		//ã‚ã„ã“ã®å ´åˆã®è‡ªåˆ†ã®æ‰‹ã®é¸æŠ
+		//‚ ‚¢‚±‚Ìê‡‚Ì©•ª‚Ìè‚Ì‘I‘ğ
 		if (isDraw == true) {
-			printf("å¯¾æˆ¦ã‚’ç¶šã‘ã¾ã™ã€‚å†åº¦ã€ã‚ãªãŸãŒå‡ºã™æ‰‹ã‚’é¸ã‚“ã§ãã ã•ã„ã€‚\n");
-			printf("1:ã‚°ãƒ¼ã€2:ãƒãƒ§ã‚­ã€3:ãƒ‘ãƒ¼ [1/2/3] > ");
+			printf("‘Îí‚ğ‘±‚¯‚Ü‚·BÄ“xA‚ ‚È‚½‚ªo‚·è‚ğ‘I‚ñ‚Å‚­‚¾‚³‚¢B\n");
+			printf("1:ƒO[A2:ƒ`ƒ‡ƒLA3:ƒp[ [1/2/3] > ");
 			scanf("%d", &myHand);
 			rewind(stdin);
+
+			printf("‚ ‚¢‚±‚Å");
+			Sleep(500);
+			printf(".");
+			Sleep(500);
+			printf(".");
+			Sleep(500);
+			printf(".");
+			Sleep(500);
+			printf("‚µ‚åII");
+			printf("\n");
 		}
 	}
+	Sleep(500);
+	return kachiboshi;
 }
 
 /*
- * jankenHantei
- * 2è€…ã®æ‰‹(æ•°å€¤)ã‚’æ¯”è¼ƒã—ã€ãã®ä»£å„Ÿã«ã‚ˆã‚Šå‹æ•—ã‚’åˆ¤å®šã—ã€
- * ä»¥ä¸‹ã®æ•°å€¤ã‚’è¿”å´ã™ã‚‹ã€‚
- * @param myHandï¼šè‡ªåˆ†ã®æ‰‹
- * @param opponentHandï¼šç›¸æ‰‹ã®æ‰‹
- * @return 0:å¼•ãåˆ†ã‘
- * 	   1:è‡ªåˆ†ã®å‹ã¡
- * 	   2:ç›¸æ‰‹ã®å‹ã¡
- */
+* jankenHantei
+* 2Ò‚Ìè(”’l)‚ğ”äŠr‚µA‚»‚Ì‘ã‚É‚æ‚èŸ”s‚ğ”»’è‚µA
+* ˆÈ‰º‚Ì”’l‚ğ•Ô‹p‚·‚éB
+* @param myHandF©•ª‚Ìè
+* @param opponentHandF‘Šè‚Ìè
+* @return 0:ˆø‚«•ª‚¯
+* 	   1:©•ª‚ÌŸ‚¿
+* 	   2:‘Šè‚ÌŸ‚¿
+*/
 int jankenHantei(int myHand, int opponentHand)
 {
 	if (myHand == opponentHand) {
 		return 0;
-	} else if (myHand + 1 == opponentHand) {
-		// è‡ªåˆ†ãŒå‹ã¡ã®å ´åˆ
+	}
+	else if (myHand + 1 == opponentHand) {
+		// ©•ª‚ªŸ‚¿‚Ìê‡
 		return 1;
-	} else if (myHand - 1 == opponentHand) {
-		// è‡ªåˆ†ãŒè² ã‘ã®å ´åˆ
+	}
+	else if (myHand - 1 == opponentHand) {
+		// ©•ª‚ª•‰‚¯‚Ìê‡
 		return 2;
 	}
 	else {
-		// ä¸Šè¨˜ã¾ã§ã®ãƒ­ã‚¸ãƒƒã‚¯ã§åˆ¤å®šã§ããªã„å ´åˆã€
-		// ãã®çµ¶å¯¾å€¤ã®å·®ã¯2ã§ã‚ã‚‹ã®ã§ã€ã©ã¡ã‚‰ã‹ãŒã‚°ãƒ¼ã‹ãƒ‘ãƒ¼ã¨ã„ã†ã“ã¨ã«ãªã‚‹ã€‚
-		// ã—ãŸãŒã£ã¦ã€ä¸¡è€…ã®ä»£å„Ÿã‚’æ¯”è¼ƒã™ã‚‹ã ã‘ã§å‹æ•—ãŒåˆ¤å®šã§ãã‚‹ã€‚		
+		// ã‹L‚Ü‚Å‚ÌƒƒWƒbƒN‚Å”»’è‚Å‚«‚È‚¢ê‡A
+		// ‚»‚Ìâ‘Î’l‚Ì·‚Í2‚Å‚ ‚é‚Ì‚ÅA‚Ç‚¿‚ç‚©‚ªƒO[‚©ƒp[‚Æ‚¢‚¤‚±‚Æ‚É‚È‚éB
+		// ‚µ‚½‚ª‚Á‚ÄA—¼Ò‚Ì‘ã‚ğ”äŠr‚·‚é‚¾‚¯‚ÅŸ”s‚ª”»’è‚Å‚«‚éB		
 		if (myHand < opponentHand) {
 			return 2;
 		}
@@ -188,4 +295,96 @@ int jankenHantei(int myHand, int opponentHand)
 			return 1;
 		}
 	}
+}
+
+void printHand(int myHand, int opponentHand)
+{
+	int i;
+	int handArray[2] = { myHand, opponentHand };
+	for (i = 0; i < 2; i++) {
+		switch (handArray[i])
+		{
+		case 1:
+			printGoo();
+			break;
+		case 2:
+			printChoki();
+			break;
+		case 3:
+			printPaa();
+			break;
+		default:
+			break;
+
+		}
+		printf("\n\n");
+		Sleep(500);
+		if (i == 0) {
+			printf("V.S.");
+			printf("\n\n");
+		}
+	}
+	Sleep(250);
+}
+
+void printGoo()
+{
+	printf("\n"
+		"      *******|******|******|*****|\n"
+		"      *******|******|******|*****|\n"
+		"      *******|******|******|*****|\n"
+		"  *****?*****|******|******|*****|\n"
+		" *******?*************************\n"
+		"  *******?************************\n"
+		"   *******?***********************\n"
+		"    ******************************\n"
+		"     *****************************\n"
+		"      ****************************\n"
+		"       ***************************\n"
+		"        ************************* \n"
+	);
+}
+
+void printChoki()
+{
+	printf("\n"
+		"       ******  ******  \n"
+		"       ******  ******  \n"
+		"       ******  ******  \n"
+		"       ******  ******  \n"
+		"       ******  ******  \n"
+		"       ******  ******  \n"
+		"       ******  ******  \n"
+		"  *****?************** \n"
+		" *******?**************\n"
+		"  *******?*************\n"
+		"   *******?************\n"
+		"    *******************\n"
+		"     ******************\n"
+		"      *****************\n"
+		"       ****************\n"
+		"        ************** \n"
+	);
+}
+
+void printPaa()
+{
+	printf("\n"
+		"       ******|******|******|*****|\n"
+		"       ******|******|******|*****|\n"
+		"       ******|******|******|*****|\n"
+		"       ******|******|******|*****|\n"
+		"       ******|******|******|*****|\n"
+		"       ******|******|******|*****|\n"
+		"       ***************************\n"
+		"  *****?**************************\n"
+		" *******?*************************\n"
+		"  *******?************************\n"
+		"   *******?***********************\n"
+		"    ******************************\n"
+		"     *****************************\n"
+		"      ****************************\n"
+		"       ***************************\n"
+		"        ************************* \n"
+	);
 }
